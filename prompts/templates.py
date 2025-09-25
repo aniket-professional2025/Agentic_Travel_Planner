@@ -45,35 +45,149 @@ Example of the required JSON structure:
 
 # Define the Prompt for Budget Services
 BUDGET_PROMPT = """
-You are a travel finance assistant. Given trip details:
+You are a travel finance assistant. Given the following trip details, provide a detailed budget breakdown.
 
+User request:
 {trip_summary}
 
-Estimate a simple budget broken down into: flights, accommodation (per night), food (per day), transportation (per day), activities, and contingency.
-Output as a single JSON object. The main object should have a key called **trip_budget** which is another JSON object. Inside **trip_budget**, all budget categories **must** be present, each with an **estimate** and **currency** key. Additionally, **total_estimate** must be included with an **estimate** and **currency** key.
+Constraints:
+- Respond **only** with a valid JSON object.
+- The entire JSON object **must be wrapped in ```json ... ``` fences**.
+- The main object **must** contain a single key called **"trip_budget"**.
+- The value of "trip_budget" must be an object.
+- This inner object **must** contain the following keys:
+  - **"flights"**
+  - **"accommodation"**
+  - **"food"**
+  - **"transportation"**
+  - **"activities"**
+  - **"contingency"**
+- Each of these categories **must** be an object with two keys: **"estimate"** (a numeric value) and **"currency"** (e.g., "USD", "EUR").
+- A final key, **"total_estimate"**, **must** also be included with its own **"estimate"** and **"currency"** keys.
+- The **"estimate"** value for "accommodation" should be a per-night cost, and for "food" and "transportation" it should be a per-day cost.
+
+Example of the required JSON structure:
+```json
+{
+  "trip_budget": {
+    "flights": {
+      "estimate": 1200,
+      "currency": "USD"
+    },
+    "accommodation": {
+      "estimate": 150,
+      "currency": "USD"
+    },
+    "food": {
+      "estimate": 70,
+      "currency": "USD"
+    },
+    "transportation": {
+      "estimate": 30,
+      "currency": "USD"
+    },
+    "activities": {
+      "estimate": 500,
+      "currency": "USD"
+    },
+    "contingency": {
+      "estimate": 250,
+      "currency": "USD"
+    },
+    "total_estimate": {
+      "estimate": 2100,
+      "currency": "USD"
+    }
+  }
+}
 """
 
 # Define the Prompt for Packing Assistanc
 PACKING_PROMPT = """
-You are a helpful packing assistant. Given the destination, month/date, length of trip, traveler profile (adult, children), and 
-planned activities, produce a categorized packing list (clothing, toiletries, electronics, documents, extras) with quantities.
-Input:
+You are a helpful packing assistant. Given the destination, month/date, length of trip, traveler profile (adult, children), and planned activities, produce a categorized packing list with quantities.
 
+Input:
 {trip_summary}
 
-Output:
-JSON object with keys: clothing, toiletries, electronics, documents, extras
+Constraints:
+- Respond **only** with a valid JSON object.
+- The entire JSON object **must be wrapped in ```json ... ``` fences**.
+- The JSON object **must** have the following top-level keys: **"clothing"**, **"toiletries"**, **"electronics"**, **"documents"**, and **"extras"**.
+- The value for each of these keys **must** be a nested object.
+- Each nested object should contain key-value pairs where the key is the item and the value is the quantity or a short description.
+- Do not include any additional text or explanation outside of the JSON fences.
+
+Example of the required JSON structure:
+```json
+{
+  "clothing": {
+    "T-shirts": "5",
+    "Pants": "2",
+    "Light jacket": "1",
+    "Socks": "7 pairs"
+  },
+  "toiletries": {
+    "Toothbrush": "1",
+    "Toothpaste": "1 tube",
+    "Shampoo": "Travel size"
+  },
+  "electronics": {
+    "Phone charger": "1",
+    "Portable power bank": "1"
+  },
+  "documents": {
+    "Passport": "1",
+    "Visa": "As needed"
+  },
+  "extras": {
+    "Travel pillow": "1",
+    "Reusable water bottle": "1"
+  }
+}
 """
 
 # Define the Prompt for Activities
 ACTIVITIES_PROMPT = """
-Recommend top 6 activities and 4 restaurants/cafes for the destination based on traveler preferences (culture, adventure, food, 
-family-friendly).
-For each **activity**, you **must** provide a **name**, a **description** (1-2 sentences), and **time_needed**.
-For each **restaurant/cafe**, you **must** provide a **name**, a **description** (1-2 sentences), and an **average_cost**.
-Input:
+Recommend top 6 activities and 4 restaurants/cafes for the destination based on traveler preferences (culture, adventure, food, family-friendly).
 
+Input:
 {trip_summary}
 
-Output: JSON object with two keys: "activities" (a list of objects) and "restaurants" (a list of objects).
+Constraints:
+- Respond **only** with a valid JSON object.
+- The entire JSON object **must be wrapped in ```json ... ``` fences**.
+- The main object **must** have two keys: **"activities"** and **"restaurants"**.
+- The value for both "activities" and "restaurants" must be a list of objects.
+- Each object in the **"activities"** list **must** have the following keys: **"name"**, **"description"** (a 1-2 sentence summary), and **"time_needed"**.
+- Each object in the **"restaurants"** list **must** have the following keys: **"name"**, **"description"** (a 1-2 sentence summary), and **"average_cost"**.
+- Do not include any additional text or explanation outside of the JSON fences.
+
+Example of the required JSON structure:
+```json
+{
+  "activities": [
+    {
+      "name": "The Louvre Museum",
+      "description": "Explore one of the world's largest art museums, home to thousands of works including the Mona Lisa.",
+      "time_needed": "3-4 hours"
+    },
+    {
+      "name": "Eiffel Tower Climb",
+      "description": "Ascend to the top of Paris's iconic landmark for breathtaking panoramic views of the city.",
+      "time_needed": "2 hours"
+    }
+  ],
+  "restaurants": [
+    {
+      "name": "Le Comptoir du Relais",
+      "description": "A popular bistro known for its classic French cuisine and vibrant atmosphere. Reservations are essential.",
+      "average_cost": "€€€"
+    },
+    {
+      "name": "L'As du Fallafel",
+      "description": "Famous for serving one of the best falafel sandwiches in the city, perfect for a quick and casual meal.",
+      "average_cost": "€"
+    }
+  ]
+}
 """
